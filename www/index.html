@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Accord rapproche les recettes comptabilisées et les déclarations / dépôts directement dans votre navigateur. Aucun fichier n'est envoyé.">
+<meta name="robots" content="noindex,nofollow">
+<meta property="og:type" content="website"><meta property="og:title" content="Accord — Rapprochement recettes et déclarations"><meta property="og:description" content="Rapprochement local, sans envoi de fichier."><meta property="og:image" content="og-image.png"><meta property="og:locale" content="fr_FR"><meta name="twitter:card" content="summary_large_image">
+<script>if(location.protocol==="http:"&&!/^(localhost|127\.|\[::1\])/.test(location.hostname))location.replace("https:"+location.href.substring(5))</script>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a3d91">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Accord">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>Accord — Rapprochement Recettes & Déclarations</title>
+<script defer src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+<style>
+:root{--ink:#12233f;--bg:#f3f6fb;--line:#d5deec;--mut:#52607a;--acc:#0a3d91;--deep:#082a63;--sky:#007fff;--gold:#f7d618;--red:#ce1021;--ok:#166534;--ko:#9b1c1c}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+[id]{scroll-margin-top:84px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--deep);z-index:30}
+.top{background:var(--deep);color:#cfe0ff;font-size:12px;padding:calc(7px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right)) 7px max(16px,env(safe-area-inset-left));display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.top span{display:flex;gap:14px}
+.lk{background:none;border:0;min-height:0;padding:3px 0;font:400 13px system-ui,sans-serif;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.top .lk{font-size:12px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:#fff;border-bottom:1px solid var(--line);padding:8px max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left));display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#logoBox{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+#logoBox img,#logoBox svg{max-width:100%;max-height:100%}
+.brand{margin-bottom:8px;line-height:1.2}
+.brand b{display:block;font-size:20px;color:var(--acc)}
+.brand small{color:var(--mut);font-size:12px}
+nav{display:flex;gap:2px;margin-left:16px;overflow-x:auto}
+nav a{padding:14px 12px 11px;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px;border-bottom:3px solid transparent;white-space:nowrap}
+nav a:hover{border-bottom-color:var(--gold);color:var(--acc)}
+.lg{margin-left:auto;margin-bottom:8px;font-size:12px;color:var(--mut);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:720px){nav{order:3;width:100%;margin:0}.lg{margin-left:auto}}
+.stripe{height:4px;background:linear-gradient(90deg,var(--sky) 0 34%,var(--gold) 34% 67%,var(--red) 67%)}
+.hero{background:var(--deep);color:#fff;padding:34px max(16px,env(safe-area-inset-right)) 54px max(16px,env(safe-area-inset-left))}
+.hero>div{max-width:1080px;margin:0 auto}
+.hero h1{margin:0 0 10px;font:700 clamp(24px,4.5vw,36px)/1.2 system-ui,sans-serif;max-width:720px}
+.hero p{margin:0 0 20px;color:#cfe0ff;max-width:640px}
+.btn{display:inline-block;background:var(--gold);color:var(--ink);padding:12px 24px;border-radius:4px;font-weight:700;text-decoration:none}
+.steps{position:relative;z-index:1;max-width:1080px;margin:-28px auto 0;padding:0 16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.step{background:#fff;border:1px solid var(--line);border-top:3px solid var(--gold);border-radius:4px;padding:12px 14px;font-size:13px;color:var(--mut)}
+.step b{display:block;color:var(--ink);font-size:14px}
+main{max-width:1080px;margin:26px auto;padding:0 16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}.bar button{flex:1 1 100%}}
+.card{background:#fff;border:1px solid var(--line);border-radius:4px;padding:16px;margin-top:16px}
+.grid2 .card{margin-top:0}
+.card h2,details>summary{margin:0 0 10px;font:700 12px/1.3 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+details>summary{cursor:pointer;margin:0}
+.drop{position:relative;border:1.5px dashed #8fa0bd;border-radius:4px;padding:20px 10px;text-align:center;cursor:pointer;background:#f8fafd;color:var(--mut);display:block}
+.drop:hover,.drop.over{border-color:var(--acc);background:#eaf1fd}
+.drop:focus-within{outline:3px solid var(--gold);outline-offset:2px}
+.drop input{position:absolute;opacity:0;width:1px;height:1px}
+.drop b{display:block;margin-top:6px;color:var(--ink);word-break:break-all}
+select,input[type=number]{width:100%;min-height:40px;padding:8px;margin-top:8px;border:1px solid var(--line);border-radius:4px;font:inherit;background:#fff;color:var(--ink)}
+button{min-height:44px;border:1px solid transparent;border-radius:4px;padding:0 18px;font:700 14px system-ui,sans-serif;cursor:pointer}
+.pri{background:var(--acc);color:#fff}
+.pri:hover:not(:disabled){background:var(--deep)}
+.sec{background:#fff;color:var(--ink);border-color:#8fa0bd}
+.sec:hover:not(:disabled){border-color:var(--ink)}
+button:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0 6px}
+.bar .sp{flex:1}
+#msg{min-height:22px;margin:8px 0;font-size:14px;color:var(--ko)}
+#msg.ok{color:var(--ok)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden;margin:14px 0}
+.st{background:var(--acc);padding:14px}
+.st small{display:block;font-size:12px;color:#cfe0ff}
+.st strong{font:700 24px/1.3 system-ui,sans-serif;color:#fff;font-variant-numeric:tabular-nums}
+.st.ok strong{color:#9be7b0}.st.ko strong{color:#ffb4b4}
+.tw{overflow:auto;max-height:320px;border:1px solid var(--line);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:12px}
+th,td{padding:6px 9px;border-bottom:1px solid #e6ecf5;white-space:nowrap;text-align:left}
+th{background:#e4ebf7;color:var(--ink);position:sticky;top:0}
+td.y{background:#ffff00;font-weight:600}
+td.a{background:#ffc000;font-weight:600}
+.empty{padding:18px;margin:0;color:var(--mut);font-size:13px}
+details label{display:block}
+footer{background:var(--deep);color:#cfe0ff;margin-top:34px;padding:30px max(16px,env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left));border-top:4px solid var(--gold);font-size:13px}
+.fw{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1.6fr;gap:24px}
+@media(max-width:720px){.fw{grid-template-columns:1fr}}
+footer b{display:block;color:#fff;margin-bottom:6px}
+footer p{margin:0}
+footer a,footer .lk{display:block;color:#cfe0ff;padding:3px 0;font-size:13px}
+.fb{max-width:1080px;margin:20px auto 0;border-top:1px solid rgba(255,255,255,.2);padding-top:12px;font-size:12px}
+dialog{max-width:640px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:6px;padding:20px 22px;color:var(--ink)}
+dialog::backdrop{background:rgba(8,42,99,.6)}
+dialog h2{font:700 20px system-ui,sans-serif;margin:0 0 10px;text-transform:none;letter-spacing:0;color:var(--ink)}
+dialog p,dialog li{font-size:14px;line-height:1.6}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media(prefers-reduced-motion:no-preference){button,.drop,nav a{transition:background .15s,border-color .15s}}
+</style>
+</head>
+<body>
+<div class="top"><span>Outil de travail non officiel · aucun fichier envoyé</span><span><button class="lk" data-d="priv">Confidentialité</button><button class="lk" data-d="cond">Conditions</button></span></div>
+<header><div id="logoBox"><svg id="logoSvg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Accord"><polygon points="50,5 88.97,27.5 88.97,72.5 50,95 11.03,72.5 11.03,27.5" fill="#0e1b2e"/><path d="M50 26A24 24 0 0 0 50 74" transform="translate(-1.5 -3)" fill="none" stroke="#f7d618" stroke-width="9"/><path d="M50 26A24 24 0 0 1 50 74" transform="translate(1.5 3)" fill="none" stroke="#fff" stroke-width="9"/><circle cx="50" cy="50" r="4.5" fill="#007fff"/></svg></div><div class="brand"><b>Accord</b><small>Rapprochement recettes et déclarations</small></div><nav aria-label="Sections"><a href="#rapprochement">Rapprochement</a><a href="#colonnes">Colonnes</a><a href="#resultats">Résultats</a><a href="#valeur">Mesure de valeur</a></nav><label class="lg">Importer mon logo<input type="file" id="logoIn" accept="image/png,image/svg+xml,image/*" hidden></label></header>
+<div class="stripe"></div>
+<section class="hero"><div><h1>Pour un rapprochement fiable des recettes</h1><p>Comparez les recettes comptabilisées et les déclarations / dépôts, repérez les écarts et exportez le résultat. Tout se passe sur votre appareil.</p><a class="btn" href="#rapprochement">Commencer</a><p style="margin:14px 0 0;font-size:12px">Conçu par KINSUMUNA MANKODILA Onyx</p></div></section>
+<div class="steps"><div class="step"><b>1 · Importer</b>Fichier Recette et fichier Source.</div><div class="step"><b>2 · Vérifier</b>Colonnes détectées, modifiables.</div><div class="step"><b>3 · Rapprocher</b>Montant et NIF, ligne à ligne.</div><div class="step"><b>4 · Exporter</b>Fichiers Excel traités et anomalies.</div></div>
+<main>
+<div class="grid2" id="rapprochement">
+<div class="card">
+<h2>1. Fichier Recette Comptabilisée</h2>
+<label class="drop" id="d1"><input type="file" id="f1" accept=".xlsx,.xls,.csv">Glisser le fichier ici ou toucher pour choisir<b id="n1">Aucun fichier</b></label>
+<select id="sh" disabled><option>Feuille…</option></select>
+<small style="color:#64748b">Colonnes : « Montant payé » et « Numero Impot »</small>
+</div>
+<div class="card">
+<h2>2. Fichier Source (Déclarations / Dépôts)</h2>
+<label class="drop" id="d2"><input type="file" id="f2" accept=".xlsx,.xls,.csv">Glisser le fichier ici ou toucher pour choisir<b id="n2">Aucun fichier</b></label>
+<select id="sh2" disabled aria-label="Feuille du fichier Source"><option>Feuille…</option></select>
+<small style="display:block;margin-top:10px;color:#64748b">Première feuille. Colonnes : « NUM DEPOT », « NIF », « MONTANT Fc » (repli : « MONTANT PAYE »)</small>
+</div>
+</div>
+<details class="card" id="colonnes" style="margin-top:14px"><summary style="cursor:pointer;font-weight:600;color:var(--bleu)">Options avancées — en cas de problème d'intitulés des colonnes</summary><div style="margin:10px 0;font-size:13px;line-height:1.9"><label><input type="checkbox" id="tol"> Détection tolérante des intitulés (majuscules, fautes, lettres oubliées : « Montan », « Mont. FC »…)</label><br><label><input type="checkbox" id="ctn"> Détection par le contenu (première colonne de montants, colonnes d'identifiants fiscaux)</label></div><b style="font-size:13px;display:block;margin:6px 0">Colonnes utilisées (modifiables à la main)</b><div class="grid2"><div><b style="font-size:13px">Recette</b><label style="display:block;font-size:12px;color:#64748b;margin-top:6px">Montant payé<select id="mA"></select></label><label style="display:block;font-size:12px;color:#64748b;margin-top:6px">NIF / Numéro impôt<select id="mN"></select></label><label style="display:block;font-size:12px;color:#64748b;margin-top:6px">Taux (optionnel)<select id="mTA"></select></label></div><div><b style="font-size:13px">Source</b><label style="display:block;font-size:12px;color:#64748b;margin-top:6px">N° de dépôt (récépissé)<select id="mD"></select></label><label style="display:block;font-size:12px;color:#64748b;margin-top:6px">NIF<select id="mS"></select></label><label style="display:block;font-size:12px;color:#64748b;margin-top:6px">Montant principal<select id="mF"></select></label><label style="display:block;font-size:12px;color:#64748b;margin-top:6px">Montant de repli (si vide ou nul)<select id="mP"></select></label><label style="display:block;font-size:12px;color:#64748b;margin-top:6px">Taux (optionnel)<select id="mTS"></select></label></div></div><div style="margin-top:12px;font-size:13px;line-height:1.9"><label><input type="checkbox" id="tx" checked> Appliquer le taux : montant × taux quand le taux est différent de 1 (en mémoire seulement, vos fichiers ne sont pas modifiés)</label><div class="grid2" style="margin-top:6px"><label style="font-size:12px;color:#52607a">Tolérance sur les montants recalculés (%)<input type="number" id="tp" min="0" step="0.1" value="5"></label><label style="font-size:12px;color:#52607a">Valeur minimale concernée (grandes valeurs)<input type="number" id="ts" min="0" step="1000" value="1000000"></label></div><small style="color:#52607a">Une correspondance approchée n'est cherchée que pour les lignes dont le taux est différent de 1 et dont le montant atteint cette valeur. Elle est marquée en orange.</small></div><div style="margin-top:12px;font-size:13px;line-height:1.9"><label style="display:block;font-size:12px;color:#52607a">Position de la colonne récépissé dans la Recette traitée<select id="pos"></select></label><label><input type="checkbox" id="rp"> Si le fichier contient déjà une colonne « récépissé » : la remplir à sa place (les valeurs existantes sont remplacées)</label></div></details>
+<div class="bar">
+<button class="pri" id="go" disabled>Lancer le rapprochement</button><span class="sp"></span>
+<button class="sec" id="e1" disabled>Export Recette traité</button>
+<button class="sec" id="e2" disabled>Export Source traité</button>
+<button class="sec" id="e3" disabled>Export Anomalies</button>
+</div>
+<div id="msg" role="status" aria-live="polite"></div>
+<div class="stats" id="resultats">
+<div class="st"><small>Lignes Recette</small><strong id="s1">–</strong></div>
+<div class="st"><small>Lignes Source</small><strong id="s2">–</strong></div>
+<div class="st ok"><small>Correspondances</small><strong id="s3">–</strong></div>
+<div class="st or"><small>Taux de rapprochement</small><strong id="s4">–</strong></div>
+<div class="st ok"><small>Montant rapproché</small><strong id="s5">–</strong></div>
+<div class="st ko"><small>Recette non rapprochée</small><strong id="s6">–</strong></div>
+<div class="st"><small>Dont approchées (taux ≠ 1)</small><strong id="s8">–</strong></div>
+<div class="st ko"><small>Source non rapprochée</small><strong id="s7">–</strong></div>
+</div>
+<div class="card" id="valeur" style="margin-bottom:14px"><h2>Mesure de valeur</h2><label style="font-size:13px">Minutes de contrôle manuel par ligne (estimation) <input id="mn" type="number" min="0" step="0.5" value="2" style="width:70px;padding:4px"></label><div id="val" style="margin-top:8px;font-size:14px;line-height:1.7;color:#14213d">Lancez un rapprochement pour voir la mesure.</div></div>
+<div class="card"><h2>Aperçu Recette (100 premières lignes) — jaune : exacte, orange : approchée</h2><div class="tw" id="pv1"><p class="empty">Aucun résultat pour l'instant.</p></div></div>
+<div class="card" style="margin-top:14px"><h2>Aperçu Source (100 premières lignes) — jaune : exacte, orange : approchée</h2><div class="tw" id="pv2"><p class="empty">Aucun résultat pour l'instant.</p></div></div>
+</main>
+<footer><div class="fw"><div><b>Accord</b><p>Outil de travail non officiel de rapprochement des recettes comptabilisées et des déclarations / dépôts.</p></div><div><b>Liens rapides</b><a href="#rapprochement">Rapprochement</a><a href="#colonnes">Colonnes</a><a href="#resultats">Résultats</a></div><div><b>Informations</b><button class="lk" data-d="priv">Confidentialité</button><button class="lk" data-d="cond">Conditions d'utilisation</button></div><div><b>Contact</b><a href="tel:+243991346737">+243 991 346 737</a><a href="mailto:onyxkinsumuna@icloud.com">onyxkinsumuna@icloud.com</a></div></div><div class="fb">Accord © 2026 · Conçu par KINSUMUNA MANKODILA Onyx · v1.0 · Traitement 100 % local</div></footer>
+<dialog id="dlg" aria-label="Information"><div id="dlgB"></div><button class="pri" id="dlgX" style="margin-top:14px">Fermer</button></dialog>
+<script>
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var wb1=null,wb2=null,nm1="",res=null;
+function norm(s){return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"")}
+function cleanAmt(v){
+ if(typeof v==="number")return isFinite(v)?Math.round(v*100)/100:0;
+ var s=String(v==null?"":v).replace(/[\s\u00A0\u202F\r\n\t]/g,"").replace(",",".");
+ var n=parseFloat(s);return isNaN(n)?0:Math.round(n*100)/100;
+}
+function cleanNif(v){return String(v==null?"":v).replace(/[\s\u00A0\u202F]/g,"").toUpperCase()}
+function colIdx(h,name){for(var i=0;i<h.length;i++){if(norm(h[i])===norm(name))return i}return -1}
+function msg(t,ok){var e=$("msg");e.textContent=t||"";e.className=ok?"ok":""}
+function fmt(n){return Number(n).toLocaleString("fr-FR",{maximumFractionDigits:2})}
+function readFile(file,cb){
+ if(!/\.(xlsx|xlsm|xls|csv)$/i.test(file.name)){msg("Format non pris en charge : utilisez un fichier .xlsx, .xls ou .csv.");return}
+ msg(file.size>62914560?"Fichier très volumineux (plus de 60 Mo) : le traitement peut être lent.":"");
+ res=null;["e1","e2","e3"].forEach(function(i){$(i).disabled=true});
+ var r=new FileReader();
+ r.onload=function(e){try{cb(XLSX.read(new Uint8Array(e.target.result),{type:"array"}))}catch(x){msg("Fichier illisible : "+x.message)}};
+ r.readAsArrayBuffer(file);
+}
+function setupDrop(zone,input,fn){
+ zone.addEventListener("dragover",function(e){e.preventDefault();zone.classList.add("over")});
+ zone.addEventListener("dragleave",function(){zone.classList.remove("over")});
+ zone.addEventListener("drop",function(e){e.preventDefault();zone.classList.remove("over");if(e.dataTransfer.files[0])fn(e.dataTransfer.files[0])});
+ input.addEventListener("change",function(){if(input.files[0])fn(input.files[0])});
+}
+function chk(){$("go").disabled=!(wb1&&wb2)}
+setupDrop($("d1"),$("f1"),function(f){
+ $("n1").textContent=f.name;nm1=f.name;
+ readFile(f,function(wb){
+  wb1=wb;var sel=$("sh");sel.innerHTML="";
+  wb.SheetNames.forEach(function(n){var o=document.createElement("option");o.value=n;o.textContent=n;sel.appendChild(o)});
+  var def=wb.SheetNames.filter(function(n){return n.trim().toUpperCase()==="TVA"})[0]||wb.SheetNames.filter(function(n){return n.trim().toUpperCase()==="IPR"})[0]||wb.SheetNames[0];
+  sel.value=def;sel.disabled=false;mapA();if(wb2){$("sh2").value=pickSrc();mapB()}chk();
+ });
+});
+setupDrop($("d2"),$("f2"),function(f){$("n2").textContent=f.name;readFile(f,function(wb){wb2=wb;var e=$("sh2");e.innerHTML="";wb.SheetNames.forEach(function(n){var o=document.createElement("option");o.value=n;o.textContent=n;e.appendChild(o)});e.value=pickSrc();e.disabled=false;mapB();chk()})});
+function aoa(ws){
+ var a=XLSX.utils.sheet_to_json(ws,{header:1,defval:"",raw:true});
+ return a.filter(function(r){return r.some(function(c){return String(c).trim()!==""})});
+}
+function run(){
+ var T0=performance.now();msg("");
+ try{
+  var A=aoa(wb1.Sheets[$("sh").value]),B=aoa(wb2.Sheets[$("sh2").value]);
+  if(!A.length||!B.length){msg("Un des fichiers est vide.");return}
+  var hA=A[0].map(String),hB=B[0].map(String),rA=A.slice(1),rB=B.slice(1);
+  var aM=+$("mA").value,aN=+$("mN").value;
+  var bD=+$("mD").value,bN=+$("mS").value,bF=+$("mF").value,bP=+$("mP").value;
+  var err=[];
+  if(aM<0)err.push("« Montant payé » (Recette)");if(aN<0)err.push("« Numero Impot » (Recette)");
+  if(bD<0)err.push("« NUM DEPOT » (Source)");if(bN<0)err.push("« NIF » (Source)");if(bF<0&&bP<0)err.push("« MONTANT Fc » ou « MONTANT PAYE » (Source)");
+  if(err.length){msg("Colonnes introuvables : "+err.join(", ")+" — ouvrez « Options avancées » (détection tolérante, détection par le contenu, ou choix manuel).");return}
+  var useTx=$("tx").checked,tolP=(parseFloat($("tp").value)||0)/100,seuil=parseFloat($("ts").value)||0,aT=+$("mTA").value,bT=+$("mTS").value;
+  function rate(r,c){if(c<0||!useTx)return 1;var t=cleanAmt(r[c]);return(t>0&&isFinite(t))?t:1}
+  var vA=[],fA=[],vB=[],fB=[];
+  rA.forEach(function(r){var t=rate(r,aT),v=cleanAmt(r[aM]);fA.push(t!==1);vA.push(t!==1?Math.round(v*t*100)/100:v)});
+  rB.forEach(function(r){var m=bF>=0?cleanAmt(r[bF]):0;if(!m&&bP>=0)m=cleanAmt(r[bP]);var t=rate(r,bT);fB.push(t!==1);vB.push(t!==1?Math.round(m*t*100)/100:m)});
+  var skA=rA.map(function(r,i){return cleanNif(r[aN])===""&&vA[i]===0}),skB=rB.map(function(r,j){return cleanNif(r[bN])===""&&vB[j]===0});
+  var kA=rA.map(function(r,i){return vA[i]+"_"+cleanNif(r[aN])}),kB=rB.map(function(r,j){return vB[j]+"_"+cleanNif(r[bN])});
+  var mapB={};kB.forEach(function(k,i){if(!(k in mapB))mapB[k]=i});
+  var setA={};kA.forEach(function(k){setA[k]=1});
+  var recep=[],okA=[],okB=[],tot=0,nbm=0,um=0,apx=0;
+  kA.forEach(function(k,i){
+   if(skA[i]){recep.push("");okA.push(0);return}
+   if(k in mapB){recep.push(rB[mapB[k]][bD]);okA.push(1);nbm++;tot+=vA[i]}
+   else{recep.push("");okA.push(0);um+=vA[i]}
+  });
+  kB.forEach(function(k){okB.push(k in setA?1:0)});
+  if(useTx&&tolP>0){
+   var pool={},cand=[],usedA={},usedB={};
+   kB.forEach(function(k,j){if(!okB[j]&&!skB[j]){var n=cleanNif(rB[j][bN]);(pool[n]=pool[n]||[]).push(j)}});
+   rA.forEach(function(r,i){
+    if(okA[i]||skA[i])return;
+    var c=pool[cleanNif(r[aN])];if(!c)return;
+    var a=vA[i];
+    c.forEach(function(j){var b=vB[j];if(!(fA[i]||fB[j])||Math.max(a,b)<seuil)return;var d=Math.abs(a-b)/Math.max(a,b);if(d<=tolP)cand.push([d,i,j])});
+   });
+   cand.sort(function(x,y){return x[0]-y[0]});
+   cand.forEach(function(c){var i=c[1],j=c[2];if(usedA[i]||usedB[j])return;usedA[i]=usedB[j]=1;recep[i]=rB[j][bD];okA[i]=2;okB[j]=2;apx++;nbm++;tot+=vA[i];um-=vA[i]});
+  }
+  var nrec=fA.filter(Boolean).length+fB.filter(Boolean).length;
+  var nsk=skA.filter(Boolean).length,nvA=rA.length-nsk,nvB=rB.length-skB.filter(Boolean).length,nzB=0;
+  okB.forEach(function(x,j){if(!x&&!skB[j])nzB++});
+  var tx=nvA?(nbm/nvA*100).toFixed(2):"0.00";
+  var exI=-1;hA.forEach(function(h,j){if(exI<0&&norm(h)==="recepisse")exI=j});
+  var fill=$("rp").checked&&exI>=0,pos=$("pos").value,ins;
+  if(fill)ins=exI;
+  else if(pos==="end")ins=hA.length;
+  else if(pos!==""&&pos!=="auto"&&!isNaN(+pos))ins=(+pos)+1;
+  else{var dv=colIdx(hA,"Devise");ins=dv>=0?dv+1:(aT>=0?aT:hA.length)}
+  res={t:performance.now()-T0,um:um,hA:hA,rA:rA,hB:hB,rB:rB,recep:recep,okA:okA,okB:okB,bD:bD,skA:skA,skB:skB,nv:nvA,rh:(exI>=0&&!fill)?"récépissé (rapprochement)":"récépissé",ins:ins,fill:fill};
+  $("s1").textContent=fmt(nvA);$("s2").textContent=fmt(nvB);$("s3").textContent=fmt(nbm);$("s8").textContent=fmt(apx);
+  $("s4").textContent=tx+" %";$("s5").textContent=fmt(tot);$("s6").textContent=fmt(nvA-nbm);$("s7").textContent=fmt(nzB);
+  preview();valeur();msg(fmt(nbm)+" correspondance(s) sur "+fmt(nvA)+" lignes de la Recette ("+tx+" %)."+(apx?" Dont "+fmt(apx)+" approchée(s), en orange.":"")+(nrec?" Lignes recalculées avec un taux différent de 1 : "+fmt(nrec)+".":"")+(nsk?" "+fmt(nsk)+" ligne(s) sans NIF ni montant ignorée(s) (totaux).":""),true);
+  ["e1","e2","e3"].forEach(function(i){$(i).disabled=false});
+ }catch(x){msg("Erreur : "+x.message)}
+}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function outHead(){return res.fill?res.hA:res.hA.slice(0,res.ins).concat([res.rh]).concat(res.hA.slice(res.ins))}
+function outRow(r,i){var o=[],n=res.hA.length;for(var j=0;j<=n;j++){if(j===res.ins&&!res.fill)o.push(res.recep[i]);if(j<n)o.push(res.fill&&j===res.ins?res.recep[i]:(r[j]==null?"":r[j]))}return o}
+function preview(){
+ var h="<table><tr>"+outHead().map(function(x){return"<th>"+esc(x)+"</th>"}).join("")+"</tr>";
+ res.rA.slice(0,100).forEach(function(r,i){
+  h+="<tr>"+outRow(r,i).map(function(v,j){return"<td"+(j===res.ins&&res.okA[i]?(res.okA[i]===2?' class="a"':' class="y"'):"")+">"+esc(v)+"</td>"}).join("")+"</tr>";
+ });
+ $("pv1").innerHTML=h+"</table>";
+ h="<table><tr>"+res.hB.map(function(x){return"<th>"+esc(x)+"</th>"}).join("")+"</tr>";
+ res.rB.slice(0,100).forEach(function(r,i){
+  h+="<tr>"+res.hB.map(function(_,j){return"<td"+(j===res.bD&&res.okB[i]?(res.okB[i]===2?' class="a"':' class="y"'):"")+">"+esc(r[j]==null?"":r[j])+"</td>"}).join("")+"</tr>";
+ });
+ $("pv2").innerHTML=h+"</table>";
+}
+var ORA={patternType:"solid",fgColor:{rgb:"FFC000"}},YEL={patternType:"solid",fgColor:{rgb:"FFFF00"}},GREY={patternType:"solid",fgColor:{rgb:"D9D9D9"}};
+var LN={style:"thin",color:{rgb:"808080"}},BD={top:LN,bottom:LN,left:LN,right:LN};
+function sheetFrom(head,rows,hiCol,hiFlags){
+ var ws=XLSX.utils.aoa_to_sheet([head].concat(rows)),R=rows.length,w=head.map(function(h){return String(h).length+4});
+ for(var r=0;r<=R;r++)for(var c=0;c<head.length;c++){
+  var a=XLSX.utils.encode_cell({r:r,c:c});
+  if(!ws[a])ws[a]={t:"s",v:""};
+  var s={border:BD,alignment:{vertical:"center"}};
+  if(r===0){s.font={bold:true};s.fill=GREY;s.alignment={horizontal:"center",vertical:"center",wrapText:true}}
+  else{
+   if(c===hiCol&&hiFlags[r-1])s.fill=hiFlags[r-1]===2?ORA:YEL;
+   var l=String(ws[a].v).length+2;if(l>w[c])w[c]=Math.min(l,45);
+  }
+  ws[a].s=s;
+ }
+ ws["!cols"]=w.map(function(x){return{wch:Math.max(12,x)}});
+ ws["!rows"]=[{hpt:24}];
+ return ws;
+}
+function direct(buf,name){
+ var C=window.Capacitor,P=C&&C.Plugins;
+ if(C&&C.isNativePlatform&&C.isNativePlatform()&&P&&P.Filesystem&&P.Share){
+  var b=new Uint8Array(buf),s="";for(var i=0;i<b.length;i+=8192)s+=String.fromCharCode.apply(null,b.subarray(i,i+8192));
+  P.Filesystem.writeFile({path:name,data:btoa(s),directory:"CACHE"}).then(function(r){return P.Share.share({title:name,url:r.uri})}).catch(function(e){msg("Enregistrement impossible : "+(e.message||e))});
+  return;
+ }
+ var u=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+ var a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();
+ setTimeout(function(){URL.revokeObjectURL(u)},5000);
+}
+function save(wb,name){
+ var buf=XLSX.write(wb,{bookType:"xlsx",type:"array"});
+ if(!(window.claude&&window.claude.use)){direct(buf,name);return}
+ window.claude.use("downloads").then(function(d){
+  if(!d){direct(buf,name);return}
+  return d.save({filename:name,data:buf}).then(function(){msg("")},function(e){if(e&&e.code!=="declined")msg("Enregistrement impossible : "+(e.message||e.code))});
+ });
+}
+function lev(a,b){var m=a.length,n=b.length,d=[],i,j;if(Math.abs(m-n)>3)return 9;for(i=0;i<=m;i++)d[i]=[i];for(j=1;j<=n;j++)d[0][j]=j;for(i=1;i<=m;i++)for(j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
+function fuzzyIdx(h,g){
+ var best=-1,bd=99;
+ g.forEach(function(n){var nn=norm(n);h.forEach(function(x,i){var d=lev(norm(x),nn);if(d<bd){bd=d;best=i}})});
+ if(best>=0&&bd<=2)return best;
+ for(var k=0;k<g.length;k++){var nn=norm(g[k]);for(var i=0;i<h.length;i++){var hh=norm(h[i]);if(hh.length>=3&&(hh.indexOf(nn)>=0||nn.indexOf(hh)>=0))return i}}
+ return -1;
+}
+function contentIdx(rows,h,kind){
+ var c=[];
+ for(var j=0;j<h.length;j++){
+  var v=rows.slice(0,200).map(function(r){return r[j]}).filter(function(x){return String(x==null?"":x).trim()!==""});
+  if(v.length<3)continue;
+  var ok=v.filter(function(x){
+   if(kind==="nif"){var t=cleanNif(x);return /^[A-Z0-9]{6,}$/.test(t)&&/[A-Z]/.test(t)&&/\d/.test(t)}
+   return typeof x==="number"||/^-?\d+(\.\d+)?$/.test(String(x).replace(/[\s\u00A0\u202F]/g,"").replace(",","."));
+  }).length;
+  if(ok/v.length>=0.8)c.push(j);
+ }
+ if(kind==="amt"){var p=c.filter(function(j){return /mon|mnt|amt|paye/.test(norm(h[j]))});if(p.length)return p[0]}
+ return c.length?c[0]:-1;
+}
+function fillSel(id,h,g,opt,kind,rows){var e=$(id);e.innerHTML="";
+ if(opt){var o=document.createElement("option");o.value=-1;o.textContent="(aucune)";e.appendChild(o)}
+ h.forEach(function(x,i){var o=document.createElement("option");o.value=i;o.textContent=String(x)||("Colonne "+(i+1));e.appendChild(o)});
+ var f=-1;g.forEach(function(n){if(f<0)f=colIdx(h,n)});
+ if(f<0&&$("tol").checked)f=fuzzyIdx(h,g);
+ if(f<0&&kind&&$("ctn").checked)f=contentIdx(rows,h,kind);
+ if(f>=0)e.value=f;else if(opt)e.value=-1;
+}
+function pickSrc(){var k=norm($("sh").value||"");var f=wb2.SheetNames.filter(function(x){return k&&norm(x).indexOf(k)>=0})[0];return f||wb2.SheetNames[0]}
+function fillPos(h){var e=$("pos");e.innerHTML="";[["auto","Automatique : après « Devise », avant « Taux »"],["end","À la fin"]].forEach(function(p){var o=document.createElement("option");o.value=p[0];o.textContent=p[1];e.appendChild(o)});h.forEach(function(x,i){var o=document.createElement("option");o.value=i;o.textContent="Après « "+(String(x)||("Colonne "+(i+1)))+" »";e.appendChild(o)});e.value="auto"}
+function mapA(){var a=aoa(wb1.Sheets[$("sh").value]),h=(a[0]||[]).map(String),r=a.slice(1);fillSel("mA",h,["Montant payé","Montant"],0,"amt",r);fillSel("mN",h,["Numero Impot","NIF"],0,"nif",r);fillSel("mTA",h,["Taux","Taux de change"],1,"",r);fillPos(h)}
+function mapB(){var a=aoa(wb2.Sheets[$("sh2").value]),h=(a[0]||[]).map(String),r=a.slice(1);fillSel("mD",h,["NUM DEPOT","Numero depot","Recepisse"],0,"",r);fillSel("mS",h,["NIF"],0,"nif",r);fillSel("mF",h,["MONTANT Fc","Montant"],1,"amt",r);fillSel("mP",h,["MONTANT PAYE"],1,"",r);fillSel("mTS",h,["Taux","Taux de change"],1,"",r)}
+["tol","ctn"].forEach(function(i){$(i).addEventListener("change",function(){if(wb1)mapA();if(wb2)mapB()})});
+function valeur(){
+ if(!res)return;
+ var mn=parseFloat($("mn").value)||0,man=res.nv*mn/60,ours=res.t/3600000,nb=res.okA.filter(function(x,i){return !x&&!res.skA[i]}).length,ns=res.okB.filter(function(x,j){return !x&&!res.skB[j]}).length;
+ $("val").innerHTML="Temps de traitement de l'outil : <b>"+(res.t/1000).toFixed(2)+" s</b><br>Temps de contrôle manuel estimé : <b>"+man.toFixed(1)+" h</b><br>Temps gagné estimé : <b>"+Math.max(0,man-ours).toFixed(1)+" h</b><br>Anomalies à examiner : <b>"+fmt(nb)+"</b> (Recette) + <b>"+fmt(ns)+"</b> (Source)<br>Montant Recette non rapproché : <b>"+fmt(res.um)+"</b>";
+}
+$("mn").addEventListener("input",valeur);
+$("sh2").addEventListener("change",function(){if(wb2)mapB()});
+$("sh").addEventListener("change",function(){if(wb1)mapA();if(wb2){$("sh2").value=pickSrc();mapB()}});
+var TXT={priv:"<h2>Confidentialité</h2><p>Accord lit et traite vos fichiers uniquement dans votre appareil, dans le navigateur ou l'application. Aucun fichier, aucune donnée et aucun résultat n'est envoyé à un serveur.</p><ul><li>Pas de compte, pas de cookie, pas de traceur, pas de mesure d'audience.</li><li>Les fichiers Excel exportés sont enregistrés là où vous le choisissez ; leur protection vous incombe.</li><li>Pour fonctionner hors ligne, l'application garde en mémoire ses propres fichiers (cache technique), jamais vos données.</li><li>Dans la version web, la bibliothèque de lecture Excel est téléchargée une fois depuis jsDelivr ; les versions Windows et Android l'embarquent.</li></ul><p>Contact : KINSUMUNA MANKODILA Onyx — <a href='tel:+243991346737'>+243 991 346 737</a> — <a href='mailto:onyxkinsumuna@icloud.com'>onyxkinsumuna@icloud.com</a>.</p>",
+cond:"<h2>Conditions d'utilisation</h2><ul><li>Accord est un outil d'aide au contrôle, non officiel, sans lien avec une administration. Il ne remplace ni un contrôle fiscal ni un avis professionnel.</li><li>Il rapproche les lignes dont le montant et l'identifiant sont identiques après nettoyage. L'absence de correspondance n'est pas une preuve d'irrégularité : vérifiez chaque écart.</li><li>Vous êtes responsable des fichiers importés et de leur confidentialité ; respectez les règles de votre organisation avant d'utiliser des données réelles.</li><li>L'outil est fourni « en l'état », sans garantie d'exactitude ni de disponibilité. L'auteur n'est pas responsable des décisions prises à partir de ses résultats.</li></ul>"};
+document.querySelectorAll("[data-d]").forEach(function(b){b.addEventListener("click",function(){$("dlgB").innerHTML=TXT[b.getAttribute("data-d")];$("dlg").showModal()})});
+$("dlgX").addEventListener("click",function(){$("dlg").close()});
+function mois(){
+ var m=nm1.toUpperCase().match(/(JANVIER|FEVRIER|FÉVRIER|MARS|AVRIL|MAI|JUIN|JUILLET|AOUT|AOÛT|SEPTEMBRE|OCTOBRE|NOVEMBRE|DECEMBRE|DÉCEMBRE)(?:\s+(\d{4}))?/);
+ return m?(m[1]+(m[2]?"_"+m[2]:"")):"MOIS";
+}
+$("go").addEventListener("click",run);
+$("e1").addEventListener("click",function(){
+ var rows=res.rA.map(outRow);
+ var wb=XLSX.utils.book_new();
+ XLSX.utils.book_append_sheet(wb,sheetFrom(outHead(),rows,res.ins,res.okA),$("sh").value.substring(0,31));
+ save(wb,"RECETTE_"+$("sh").value.trim().replace(/\s+/g,"_")+"_"+mois()+"_TRAITE.xlsx");
+});
+$("e2").addEventListener("click",function(){
+ var rows=res.rB.map(function(r){return res.hB.map(function(_,j){return r[j]==null?"":r[j]})});
+ var wb=XLSX.utils.book_new();
+ XLSX.utils.book_append_sheet(wb,sheetFrom(res.hB,rows,res.bD,res.okB),"Source");
+ save(wb,"SOURCE_"+$("sh2").value.trim().replace(/\s+/g,"_")+"_TRAITE.xlsx");
+});
+$("e3").addEventListener("click",function(){
+ var ra=[],rb=[];
+ res.rA.forEach(function(r,i){if(!res.okA[i]&&!res.skA[i])ra.push(res.hA.map(function(_,j){return r[j]==null?"":r[j]}))});
+ res.rB.forEach(function(r,i){if(!res.okB[i]&&!res.skB[i])rb.push(res.hB.map(function(_,j){return r[j]==null?"":r[j]}))});
+ var wb=XLSX.utils.book_new();
+ XLSX.utils.book_append_sheet(wb,sheetFrom(res.hA,ra,-1,[]),"Recette_Non_Rapprochee");
+ XLSX.utils.book_append_sheet(wb,sheetFrom(res.hB,rb,-1,[]),"Source_Non_Rapprochee");
+ save(wb,"ANOMALIES_RAPPROCHEMENT.xlsx");
+});
+$("logoIn").addEventListener("change",function(){
+ var f=this.files[0];if(!f)return;
+ var r=new FileReader();
+ r.onload=function(e){$("logoBox").innerHTML='<img alt="Logo" src="'+e.target.result+'">'};
+ r.readAsDataURL(f);
+});
+if("serviceWorker" in navigator&&location.protocol.indexOf("http")===0){navigator.serviceWorker.register("sw.js").catch(function(){})}
+</script>
+</body>
+</html>

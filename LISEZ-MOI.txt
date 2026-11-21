@@ -1,0 +1,6 @@
+Accord - installateurs Windows (.exe) et Android (.apk)
+1. Envoyez TOUT le contenu de ce dossier (y compris .github) dans un depot GitHub.
+2. Onglet Actions > Build Accord > attendez la coche verte (10 a 15 min).
+3. Ouvrez l'execution terminee > Artifacts > Accord-Windows-exe et Accord-Android-apk.
+
+Contact : KINSUMUNA MANKODILA Onyx - +243 991 346 737 - onyxkinsumuna@icloud.com
