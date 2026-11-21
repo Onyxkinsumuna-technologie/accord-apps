@@ -4,13 +4,48 @@
   "description": "Accord - Rapprochement Recettes comptabilisées et Déclarations / Dépôts",
   "author": "KINSUMUNA MANKODILA Onyx",
   "main": "electron/main.js",
-  "scripts": { "win": "electron-builder --win portable --x64 --publish never" },
+  "scripts": {
+    "win": "electron-builder --win --publish never"
+  },
   "build": {
     "appId": "app.accord.rapprochement",
     "productName": "Accord",
-    "files": ["electron/**", "www/**"],
-    "directories": { "output": "dist" },
-    "win": { "icon": "www/icon-512.png", "artifactName": "Accord.exe" }
+    "files": [
+      "electron/**",
+      "www/**"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "www/icon-512.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Accord",
+      "artifactName": "Accord-Setup.exe"
+    },
+    "portable": {
+      "artifactName": "Accord-Portable.exe"
+    }
   },
   "dependencies": {
     "@capacitor/android": "^6.2.0",

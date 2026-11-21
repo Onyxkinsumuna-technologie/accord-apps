@@ -1,1 +1,8 @@
-{ "appId": "app.accord.rapprochement", "appName": "Accord", "webDir": "www" }
+{
+  "appId": "app.accord.rapprochement",
+  "appName": "Accord",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#0e1b2e"
+  }
+}
